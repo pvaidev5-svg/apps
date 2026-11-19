@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f47721">
+  <title>OASIS CONNECT | Associação Oásis de Pompeia</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="navbar">
+  <a class="brand" href="#" data-view="home">
+    <span class="brand-mark">O</span>
+    <span><strong>OASIS</strong><small>CONNECT</small></span>
+  </a>
+
+  <nav class="nav-links" aria-label="Navegação principal">
+    <button class="nav-link active" data-view="home">Início</button>
+    <button class="nav-link" data-view="competitions">Competições</button>
+    <button class="nav-link" data-view="results">Resultados</button>
+    <button class="nav-link" data-view="events">Eventos</button>
+  </nav>
+
+  <div class="nav-actions">
+    <button class="icon-btn" id="themeToggle" title="Alternar modo escuro">☾</button>
+    <button class="icon-btn notification-trigger" id="notificationButton" title="Notificações">♧<i id="notificationDot"></i></button>
+
+    <button class="btn btn-outline btn-small" id="loginOpen">Entrar</button>
+    <button class="btn btn-primary btn-small" id="registerOpen">Cadastrar</button>
+
+    <div class="user-menu hidden" id="userMenu">
+      <span class="avatar" id="userAvatar">O</span>
+      <span class="user-name" id="userName"></span>
+      <button class="text-button" id="logoutButton">Sair</button>
+    </div>
+
+    <button class="mobile-menu" id="mobileMenu">☰</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- INÍCIO -->
+  <section class="view active" id="view-home">
+
+    <div class="hero">
+      <div class="hero-content">
+        <span class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          ASSOCIAÇÃO OÁSIS DE POMPEIA
+        </span>
+
+        <h1>
+          Conectando talentos.<br>
+          <em>Inspirando conquistas.</em>
+        </h1>
+
+        <p>
+          Um espaço para acompanhar modalidades, competições,
+          resultados e tudo o que acontece na nossa comunidade.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-light" id="heroRegister">
+            Quero participar →
+          </button>
+
+          <button class="btn btn-glass" data-goto="competitions">
+            Explorar competições
+          </button>
+        </div>
+
+        <div class="hero-note">
+          <span class="note-line"></span>
+          ESPORTE · CULTURA · COMUNIDADE
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-image-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1200&q=85"
+            alt="Atletas praticando esporte">
+        </div>
+
+        <div class="floating-card">
+          <span class="floating-icon">✦</span>
+          <div>
+            <strong>Um só lugar</strong>
+            <small>Para todas as conquistas</small>
+          </div>
+        </div>
+
+        <div class="sun-shape"></div>
+      </div>
+    </div>
+
+    <section class="section stats-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">NOSSA COMUNIDADE</span>
+          <h2>Movimento que transforma.</h2>
+        </div>
+        <p>Talentos diferentes, uma mesma energia.</p>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-icon orange">♧</span>
+          <strong id="statUsers">0</strong>
+          <span>Participantes cadastrados</span>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon yellow">🏆</span>
+          <strong id="statCompetitions">0</strong>
+          <span>Competições cadastradas</span>
+        </article>
+
+        <article class="stat-card">
+          <span class="stat-icon red">✦</span>
+          <strong id="statEvents">0</strong>
+          <span>Eventos publicados</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="section feature-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">EXPLORE O OÁSIS</span>
+          <h2>Tudo acontece aqui.</h2>
+        </div>
+        <button class="text-link" data-goto="competitions">
+          Ver competições →
+        </button>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-photo">
+            <img
+              src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1000&q=85"
+              alt="Atletas em atividade esportiva">
+          </div>
+
+          <div class="feature-copy">
+            <span class="feature-number">01 / MOVIMENTO</span>
+            <h3>Competições</h3>
+            <p>Acompanhe modalidades, participantes e chaveamentos.</p>
+            <button class="text-link" data-goto="competitions">Explorar →</button>
+          </div>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-photo">
+            <img
+              src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1000&q=85"
+              alt="Pessoas reunidas em comunidade">
+          </div>
+
+          <div class="feature-copy">
+            <span class="feature-number">02 / CONEXÃO</span>
+            <h3>Eventos e avisos</h3>
+            <p>Fique por dentro dos próximos encontros e novidades.</p>
+            <button class="text-link" data-goto="events">Ver avisos →</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </section>
+
+  <!-- COMPETIÇÕES -->
+  <section class="view page-view" id="view-competitions">
+    <div class="page-heading">
+      <span class="eyebrow">DISPUTAS & PARTICIPAÇÃO</span>
+      <h1>Competições</h1>
+      <p>Encontre sua modalidade e acompanhe os chaveamentos.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="filter-pills" id="categoryFilters">
+        <button class="filter-pill active" data-filter="Todas">Todas</button>
+        <button class="filter-pill" data-filter="Música">Música</button>
+        <button class="filter-pill" data-filter="Dança">Dança</button>
+        <button class="filter-pill" data-filter="Basquetebol">Basquetebol</button>
+        <button class="filter-pill" data-filter="Futebol">Futebol</button>
+        <button class="filter-pill" data-filter="Futsal">Futsal</button>
+        <button class="filter-pill" data-filter="Voleibol">Voleibol</button>
+        <button class="filter-pill" data-filter="Jiu-Jitsu">Jiu-Jitsu</button>
+        <button class="filter-pill" data-filter="Taekwondo">Taekwondo</button>
+      </div>
+
+      <button class="btn btn-primary hidden" id="newCompetition">
+        ＋ Nova competição
+      </button>
+    </div>
+
+    <div class="competition-grid" id="competitionGrid"></div>
+
+    <div class="empty-state hidden" id="competitionEmpty">
+      <span>🏆</span>
+      <h3>Nenhuma competição por aqui</h3>
+      <p>As próximas competições aparecerão nesta área.</p>
+    </div>
+
+    <section class="bracket-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">ACOMPANHE A DISPUTA</span>
+          <h2>Chaveamento</h2>
+        </div>
+
+        <select id="bracketSelect" class="select-control">
+          <option value="">Selecione uma competição</option>
+        </select>
+      </div>
+
+      <div id="bracketDisplay" class="bracket-display">
+        <p class="muted">Selecione uma competição para visualizar seu chaveamento.</p>
+      </div>
+    </section>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section class="view page-view" id="view-results">
+    <div class="page-heading">
+      <span class="eyebrow">PLACARES & CONQUISTAS</span>
+      <h1>Resultados</h1>
+      <p>Confira os resultados publicados das competições.</p>
+    </div>
+
+    <div class="results-list" id="resultsList"></div>
+
+    <div class="empty-state hidden" id="resultsEmpty">
+      <span>✦</span>
+      <h3>Resultados em breve</h3>
+      <p>Quando os resultados forem publicados, eles aparecerão aqui.</p>
+    </div>
+
+    <section class="history-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">TRAJETÓRIA</span>
+          <h2>Histórico de competições</h2>
+        </div>
+      </div>
+
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </section>
+
+  <!-- EVENTOS -->
+  <section class="view page-view" id="view-events">
+    <div class="page-heading">
+      <span class="eyebrow">FIQUE POR DENTRO</span>
+      <h1>Eventos & avisos</h1>
+      <p>Informações importantes para toda a comunidade Oásis.</p>
+    </div>
+
+    <div class="events-toolbar">
+      <div class="notice-banner">
+        <span>✦</span>
+        <div>
+          <strong>Conecte-se com o Oásis</strong>
+          <small>Ative as notificações do navegador para receber avisos quando estiver com o site aberto.</small>
+        </div>
+      </div>
+
+      <button class="btn btn-primary hidden" id="newEvent">
+        ＋ Publicar aviso
+      </button>
+    </div>
+
+    <div class="events-grid" id="eventsGrid"></div>
+
+    <div class="empty-state hidden" id="eventsEmpty">
+      <span>📣</span>
+      <h3>Nenhum aviso publicado</h3>
+      <p>Os próximos eventos e comunicados aparecerão aqui.</p>
+    </div>
+  </section>
+
+  <!-- PAINEL ADMINISTRATIVO -->
+  <section class="view page-view" id="view-admin">
+    <div class="page-heading">
+      <span class="eyebrow">ÁREA RESTRITA</span>
+      <h1>Painel de gestão</h1>
+      <p>Gerencie participantes, competições e comunicados.</p>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-admin="participants">Participantes</button>
+      <button class="admin-tab" data-admin="competitions">Competições</button>
+      <button class="admin-tab" data-admin="events">Avisos</button>
+    </div>
+
+    <div id="adminContent"></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">
+    <span class="brand-mark">O</span>
+    <div>
+      <strong>OASIS CONNECT</strong>
+      <small>Associação Oásis de Pompeia</small>
+    </div>
+  </div>
+
+  <p>Conectando pessoas, talentos e oportunidades.</p>
+
+  <span class="footer-copy">
+    © <span id="year"></span> Oásis Connect
+  </span>
+</footer>
+
+<!-- JANELAS DE LOGIN E CADASTRO -->
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <section class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose">×</button>
+    <div id="modalContent"></div>
+  </section>
+</div>
+
+<!-- NOTIFICAÇÕES -->
+<aside class="notification-panel hidden" id="notificationPanel">
+  <div class="panel-head">
+    <strong>Notificações</strong>
+    <button id="markRead" class="text-button">Marcar como lidas</button>
+  </div>
+  <div id="notificationList"></div>
+</aside>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
