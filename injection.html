@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Academia Pro — Laboratório SQL</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f1f3f7;color:#20232c}
+button{border:0;border-radius:7px;padding:12px 16px;font-weight:bold;cursor:pointer}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:7px;margin:7px 0}
+[hidden]{display:none!important}
+.login{min-height:100vh;background:#171923;display:grid;place-items:center;padding:20px}
+.login-card{background:white;padding:32px;border-radius:15px;width:100%;max-width:410px}
+.logo{text-align:center;font-size:27px;font-weight:bold;margin-bottom:10px}
+.logo span{color:#20bd78}
+.subtitle{text-align:center;color:#888;margin-bottom:24px}
+.login-card label{font-size:13px;font-weight:bold}
+.primary{background:#20bd78;color:white}
+.login-card .primary{width:100%;margin-top:12px}
+.demo{background:#effaf4;padding:13px;border-radius:8px;margin-top:18px;font-size:13px;line-height:1.8}
+.error{display:none;color:#d33;margin-top:12px;font-size:13px}
+header{background:#171923;color:white;padding:19px 28px;display:flex;justify-content:space-between;align-items:center}
+header .logo{font-size:21px;margin:0}
+.logout{background:#333;color:white}
+.container{max-width:1300px;margin:auto;padding:28px}
+.welcome{margin-bottom:24px}
+.welcome p{color:#888;margin-top:7px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}
+.stat,.panel{background:white;padding:22px;border-radius:12px}
+.stat p{font-size:13px;color:#888}
+.stat h2{font-size:30px;margin-top:10px}
+.panel{margin-bottom:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.filters{display:flex;gap:12px;margin-bottom:15px}
+.filters input{flex:1}
+.filters select{width:210px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:14px 10px;border-bottom:1px solid #eee;text-align:left;font-size:13px}
+th{font-size:11px;color:#888;text-transform:uppercase}
+.status{padding:6px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.ativo{background:#e0f8ec;color:#159b60}
+.pendente{background:#fff1d7;color:#b87915}
+.cancelado{background:#ffe5e5;color:#cf4545}
+.delete{background:#ffe5e5;color:#c33;padding:8px 10px}
+.empty{text-align:center;color:#888;padding:25px}
+.modal{display:none;position:fixed;inset:0;background:#0009;align-items:center;justify-content:center;padding:15px}
+.modal-card{background:white;padding:25px;border-radius:12px;width:100%;max-width:430px}
+.actions{display:flex;gap:10px;margin-top:12px}
+.actions button{flex:1}
+.cancel{background:#eee}
+.incident{background:#fff0f0;border:1px solid #f1bcbc;padding:20px;border-radius:10px;margin-bottom:20px}
+.incident h2{color:#bd3030;margin-bottom:9px}
+.incident p{line-height:1.6}
+.restore{background:#20232c;color:white;margin-top:13px}
+.safe{background:#eef5ff;padding:16px;border-radius:9px;margin-top:15px}
+.safe button{background:#3978e8;color:white;margin-top:10px}
+footer{text-align:center;color:#999;padding:22px;font-size:12px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.stats{grid-template-columns:1fr}.container{padding:14px}.filters{flex-direction:column}.filters select{width:100%}}
+</style>
+</head>
+<body>
+
+<section class="login" id="loginScreen">
+ <div class="login-card">
+  <div class="logo">ACADEMIA <span>PRO</span></div>
+  <p class="subtitle">Acesso administrativo</p>
+
+  <form id="loginForm">
+   <label>E-mail</label>
+   <input id="emailLogin" type="text" placeholder="Digite seu e-mail" required>
+   <label>Senha</label>
+   <input id="senhaLogin" type="password" placeholder="Digite sua senha" required>
+   <button class="primary">ENTRAR NO SISTEMA</button>
+   <p class="error" id="erro">Credenciais incorretas.</p>
+  </form>
+
+  <div class="demo">
+   <strong>Administrador demonstrativo</strong><br>
+   Usuário: admin<br>
+   Senha: Academia@123
+  </div>
+ </div>
+</section>
+
+<div id="adminPanel" hidden>
+ <header>
+  <div class="logo">ACADEMIA <span>PRO</span></div>
+  <button class="logout" onclick="sair()">Sair ↗</button>
+ </header>
+
+ <main class="container">
+  <section class="welcome">
+   <h1>Painel administrativo</h1>
+   <p>Bem-vindo, administrador! Gerencie os clientes cadastrados.</p>
+  </section>
+
+  <section class="stats">
+   <div class="stat"><p>Total de clientes</p><h2 id="total">0</h2></div>
+   <div class="stat"><p>Alunos ativos</p><h2 id="ativos">0</h2></div>
+   <div class="stat"><p>Mensalidades pendentes</p><h2 id="pendentes">0</h2></div>
+   <div class="stat"><p>Cancelados</p><h2 id="cancelados">0</h2></div>
+  </section>
+
+  <section id="incidente" class="incident" hidden>
+   <h2>⚠ INCIDENTE DE SEGURANÇA</h2>
+   <p>
+    A demonstração de SQL Injection foi acionada.
+    Os registros fictícios da tabela de clientes foram removidos
+    do banco local de demonstração.
+   </p>
+   <button class="restore" onclick="restaurar()">Restaurar banco de demonstração</button>
+  </section>
+
+  <section class="panel">
+   <div class="panel-head">
+    <h2>Clientes cadastrados</h2>
+    <button class="primary" onclick="abrirModal()">+ Novo cliente</button>
+   </div>
+
+   <div class="filters">
+    <input id="search" placeholder="Pesquisar cliente..." oninput="renderizar()">
+    <select id="filtro" onchange="renderizar()">
+     <option value="todos">Todas as situações</option>
+     <option>Ativo</option>
+     <option>Pendente</option>
+     <option>Cancelado</option>
+    </select>
+   </div>
+
+   <div class="table-wrap">
+    <table>
+     <thead>
+      <tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Plano</th><th>Matrícula</th><th>Situação</th><th>Ação</th></tr>
+     </thead>
+     <tbody id="lista"></tbody>
+    </table>
+   </div>
+  </section>
+
+  <section class="panel">
+   <h3>Comparação de segurança</h3>
+   <p style="color:#777;margin-top:9px">
+    O login protegido usa comparação exata de credenciais e não permite
+    que entradas sejam interpretadas como comandos SQL.
+   </p>
+   <div class="safe">
+    <strong>Teste do login protegido</strong>
+    <input id="safeEmail" placeholder="E-mail de teste">
+    <input id="safePassword" type="password" placeholder="Senha de teste">
+    <button onclick="testeSeguro()">Testar login protegido</button>
+    <p id="safeResult" style="margin-top:10px"></p>
+   </div>
+  </section>
+ </main>
+ <footer>Academia Pro — Laboratório educacional com dados fictícios</footer>
+</div>
+
+<div class="modal" id="modal">
+ <div class="modal-card">
+  <h2>Novo cliente</h2>
+  <form id="formCliente">
+   <input id="nome" placeholder="Nome completo" required>
+   <input id="email" type="email" placeholder="E-mail" required>
+   <input id="telefone" placeholder="Telefone" required>
+   <select id="plano" required>
+    <option value="">Selecione o plano</option>
+    <option>Mensal</option><option>Trimestral</option>
+    <option>Semestral</option><option>Anual</option>
+   </select>
+   <input id="data" type="date" required>
+   <select id="situacao">
+    <option>Ativo</option><option>Pendente</option><option>Cancelado</option>
+   </select>
+   <div class="actions">
+    <button class="primary" type="submit">Salvar</button>
+    <button class="cancel" type="button" onclick="fecharModal()">Cancelar</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<script>
+const USUARIO="admin";
+const SENHA="Academia@123";
+const PAYLOAD_DEMO="'; DROP TABLE users";
+
+const clientesIniciais=[
+ {id:1,nome:"Lucas Almeida",email:"lucas@email.com",telefone:"(11) 90000-0001",plano:"Mensal",data:"2026-11-02",situacao:"Ativo"},
+ {id:2,nome:"Mariana Costa",email:"mariana@email.com",telefone:"(11) 90000-0002",plano:"Anual",data:"2026-10-15",situacao:"Ativo"},
+ {id:3,nome:"Gabriel Santos",email:"gabriel@email.com",telefone:"(11) 90000-0003",plano:"Trimestral",data:"2026-09-20",situacao:"Pendente"},
+ {id:4,nome:"Ana Oliveira",email:"ana@email.com",telefone:"(11) 90000-0004",plano:"Semestral",data:"2026-08-10",situacao:"Ativo"},
+ {id:5,nome:"Pedro Ferreira",email:"pedro@email.com",telefone:"(11) 90000-0005",plano:"Mensal",data:"2026-07-05",situacao:"Cancelado"}
+];
+
+function ler(chave,alternativa){
+ try{
+  const valor=localStorage.getItem(chave);
+  return valor===null?alternativa:JSON.parse(valor);
+ }catch(e){return alternativa}
+}
+
+let clientes=ler("academia_lab_clientes",clientesIniciais);
+let bancoDestruido=ler("academia_lab_incidente",false);
+
+const loginScreen=document.getElementById("loginScreen");
+const adminPanel=document.getElementById("adminPanel");
+
+function salvar(){
+ localStorage.setItem("academia_lab_clientes",JSON.stringify(clientes));
+ localStorage.setItem("academia_lab_incidente",JSON.stringify(bancoDestruido));
+}
+
+function mostrarPainel(){
+ loginScreen.hidden=true;
+ adminPanel.hidden=false;
+ atualizarIncidente();
+ renderizar();
+}
+
+document.getElementById("loginForm").addEventListener("submit",function(e){
+ e.preventDefault();
+
+ const email=document.getElementById("emailLogin").value.trim();
+ const senha=document.getElementById("senhaLogin").value;
+
+ // Demonstração controlada: não executa o conteúdo como SQL.
+ if(email===PAYLOAD_DEMO && senha===PAYLOAD_DEMO){
+  clientes=[];
+  bancoDestruido=true;
+  salvar();
+  sessionStorage.setItem("academia_lab_logado","sim");
+  mostrarPainel();
+  return;
+ }
+
+ if(email===USUARIO && senha===SENHA){
+  sessionStorage.setItem("academia_lab_logado","sim");
+  mostrarPainel();
+ }else{
+  document.getElementById("erro").style.display="block";
+ }
+});
+
+function sair(){
+ sessionStorage.removeItem("academia_lab_logado");
+ adminPanel.hidden=true;
+ loginScreen.hidden=false;
+ document.getElementById("loginForm").reset();
+ document.getElementById("erro").style.display="none";
+}
+
+if(sessionStorage.getItem("academia_lab_logado")==="sim"){
+ mostrarPainel();
+}
+
+function atualizarIncidente(){
+ document.getElementById("incidente").hidden=!bancoDestruido;
+}
+
+function restaurar(){
+ if(!confirm("Restaurar os cinco clientes fictícios?"))return;
+ clientes=JSON.parse(JSON.stringify(clientesIniciais));
+ bancoDestruido=false;
+ salvar();
+ atualizarIncidente();
+ renderizar();
+ alert("Banco de demonstração restaurado!");
+}
+
+function escapar(valor){
+ return String(valor).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
+function classe(s){
+ return s==="Ativo"?"ativo":s==="Pendente"?"pendente":"cancelado";
+}
+
+function formatarData(data){
+ if(!data)return "-";
+ const [a,m,d]=data.split("-");
+ return `${d}/${m}/${a}`;
+}
+
+function renderizar(){
+ const busca=document.getElementById("search").value.toLowerCase();
+ const filtro=document.getElementById("filtro").value;
+ const filtrados=clientes.filter(c=>
+  c.nome.toLowerCase().includes(busca)&&
+  (filtro==="todos"||c.situacao===filtro)
+ );
+
+ document.getElementById("lista").innerHTML=filtrados.length?
+ filtrados.map(c=>`
+ <tr>
+  <td><strong>${escapar(c.nome)}</strong></td>
+  <td>${escapar(c.email)}</td>
+  <td>${escapar(c.telefone)}</td>
+  <td>${escapar(c.plano)}</td>
+  <td>${formatarData(c.data)}</td>
+  <td><span class="status ${classe(c.situacao)}">${escapar(c.situacao)}</span></td>
+  <td><button class="delete" onclick="excluir(${c.id})">Excluir</button></td>
+ </tr>`).join(""):
+ '<tr><td colspan="7" class="empty">Nenhum cliente encontrado.</td></tr>';
+
+ document.getElementById("total").textContent=clientes.length;
+ document.getElementById("ativos").textContent=clientes.filter(c=>c.situacao==="Ativo").length;
+ document.getElementById("pendentes").textContent=clientes.filter(c=>c.situacao==="Pendente").length;
+ document.getElementById("cancelados").textContent=clientes.filter(c=>c.situacao==="Cancelado").length;
+}
+
+function abrirModal(){
+ if(bancoDestruido){alert("Restaure o banco antes de cadastrar clientes.");return}
+ document.getElementById("modal").style.display="flex";
+}
+
+function fecharModal(){
+ document.getElementById("modal").style.display="none";
+ document.getElementById("formCliente").reset();
+}
+
+document.getElementById("formCliente").addEventListener("submit",function(e){
+ e.preventDefault();
+ if(bancoDestruido)return;
+
+ clientes.push({
+  id:Date.now(),
+  nome:document.getElementById("nome").value.trim(),
+  email:document.getElementById("email").value.trim(),
+  telefone:document.getElementById("telefone").value.trim(),
+  plano:document.getElementById("plano").value,
+  data:document.getElementById("data").value,
+  situacao:document.getElementById("situacao").value
+ });
+
+ salvar();
+ renderizar();
+ fecharModal();
+ alert("Cliente cadastrado!");
+});
+
+function excluir(id){
+ if(!confirm("Excluir este cliente?"))return;
+ clientes=clientes.filter(c=>c.id!==id);
+ salvar();
+ renderizar();
+}
+
+function testeSeguro(){
+ const email=document.getElementById("safeEmail").value.trim();
+ const senha=document.getElementById("safePassword").value;
+ const resultado=document.getElementById("safeResult");
+
+ if(email===USUARIO&&senha===SENHA){
+  resultado.textContent="Acesso autorizado.";
+  resultado.style.color="green";
+ }else{
+  resultado.textContent="Acesso negado. Entrada tratada como texto, sem executar comandos.";
+  resultado.style.color="#bd3030";
+ }
+}
+
+atualizarIncidente();
+</script>
+</body>
+</html>
