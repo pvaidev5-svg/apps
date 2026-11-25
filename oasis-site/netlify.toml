@@ -1,0 +1,4 @@
+# O site já vai pronto (js/site.bundle.js): o Netlify só publica os arquivos, sem montar nada.
+[build]
+  publish = "."
+  command = "echo Site pronto, nada para montar"

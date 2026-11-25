@@ -1,0 +1,103 @@
+rules_version = '2';
+// Regras de segurança do banco de dados online (Cloud Firestore).
+// Cole este arquivo inteiro em: Console do Firebase > Firestore Database > Regras > Publicar.
+//
+// Resumo:
+//  - conteúdo público (site, eventos, chaves, resultados) é lido por qualquer pessoa,
+//    e só a coordenação altera;
+//  - cada pessoa lê e altera só o próprio cadastro, consentimentos e dados sensíveis;
+//  - dados sensíveis (deficiência) só são vistos pela própria pessoa e pela coordenação (LGPD);
+//  - a coordenação é a conta adm@gmail.com.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function isAdminEmail() { return signedIn() && request.auth.token.email == "adm@gmail.com"; }
+    function myProfile() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function activeMember() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && myProfile().get("active", true) != false;
+    }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+
+    // Coordenação: registrada no primeiro acesso da conta adm@gmail.com
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid || isAdmin();
+      allow create: if signedIn() && request.auth.uid == uid && isAdminEmail();
+      allow update, delete: if false;
+    }
+
+    // Conteúdo público do site e dos eventos
+    match /{c}/{id} {
+      allow read: if c in ["settings", "projects", "sponsors", "news", "events", "categories", "entries",
+                           "matches", "teams", "performances", "media", "teachersPublic"];
+      allow write: if isAdmin() && c in ["settings", "projects", "sponsors", "news", "events", "categories",
+                                         "matches", "teams", "performances", "media"];
+    }
+
+    // Inscrições: o aluno pede (pendente); a coordenação confirma, recusa, apaga
+    match /entries/{id} {
+      allow create: if isAdmin() || (activeMember() && request.resource.data.userId == request.auth.uid
+                                     && request.resource.data.status == "pendente" && request.resource.data.teamId == null);
+      allow update: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid && onlyChanges(["publicName", "updatedAt"]));
+      allow delete: if isAdmin();
+    }
+
+    // Lista pública de professores (só o que o professor escolheu mostrar)
+    match /teachersPublic/{uid} {
+      allow write: if isAdmin() || (signedIn() && request.auth.uid == uid);
+    }
+
+    // Cadastro de cada pessoa
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid
+                                     && request.resource.data.role in ["professor", "artista", "atleta", "lutador"]
+                                     && request.resource.data.get("active", true) != false
+                                     || isAdminEmail() && request.auth.uid == uid && request.resource.data.role == "admin");
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid && resource.data.get("active", true) != false
+                                     && !request.resource.data.diff(resource.data).affectedKeys().hasAny(["role", "email"])
+                                     || signedIn() && request.auth.uid == uid && request.resource.data.get("active", true) == false);
+      allow delete: if isAdmin();
+    }
+
+    // Dados sensíveis (deficiência): só a própria pessoa e a coordenação
+    match /sensitive/{uid} {
+      allow read, write: if isAdmin() || (signedIn() && request.auth.uid == uid);
+    }
+
+    // Consentimentos (LGPD/ECA)
+    match /consents/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isAdmin() || (signedIn() && request.resource.data.userId == request.auth.uid);
+      allow update: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Equipe de apoio de cada evento (tem o nome completo): a pessoa vê a própria função
+    match /staff/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // Avisos aos inscritos
+    match /notices/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Formulário de contato: qualquer pessoa envia, só a coordenação lê
+    match /messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(["name", "email", "phone", "subject", "message", "createdAt", "updatedAt"])
+                    && request.resource.data.message is string && request.resource.data.message.size() <= 4000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Registro de auditoria: quem está conectado registra as próprias ações; só a coordenação lê
+    match /audit/{id} {
+      allow create: if signedIn() && request.resource.data.actorId == request.auth.uid;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}
